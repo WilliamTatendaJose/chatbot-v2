@@ -1,0 +1,237 @@
+// filepath: c:\Users\William Jose\source\repos\chatbot\src\services\chatbot.service.js
+const { NlpManager } = require('node-nlp');
+const logger = require('../utils/logger');
+const config = require('../config');
+
+class ChatbotService {
+  constructor() {
+    this.nlp = new NlpManager({ languages: ['en'] });
+    this.initializeNLP();
+    logger.info('Chatbot service initialized');
+  }
+
+  async initializeNLP() {
+    // Add intents and training data
+    this.addGreetingIntents();
+    this.addServiceIntents();
+    this.addBookingIntents();
+    this.addQuotationIntents();
+    this.addPaymentIntents();
+    this.addHumanTransferIntents();
+    this.addFallbackIntents();
+    
+    // Train the NLP model
+    await this.nlp.train();
+    logger.info('NLP model trained successfully');
+  }
+
+  addGreetingIntents() {
+    // Greeting intent
+    this.nlp.addDocument('en', 'hello', 'greeting');
+    this.nlp.addDocument('en', 'hi', 'greeting');
+    this.nlp.addDocument('en', 'hey', 'greeting');
+    this.nlp.addDocument('en', 'good morning', 'greeting');
+    this.nlp.addDocument('en', 'good afternoon', 'greeting');
+    this.nlp.addDocument('en', 'good evening', 'greeting');
+    this.nlp.addDocument('en', 'what\'s up', 'greeting');
+    
+    this.nlp.addAnswer('en', 'greeting', 'Hello! Welcome to TechRehub. How can I assist you today?');
+    this.nlp.addAnswer('en', 'greeting', 'Hi there! Welcome to TechRehub. How may I help you?');
+    this.nlp.addAnswer('en', 'greeting', "Greetings! I'm TechRehub's virtual assistant. What can I do for you today?");
+  }
+
+  addServiceIntents() {
+    // Service list intent
+    this.nlp.addDocument('en', 'what services do you offer', 'service.list');
+    this.nlp.addDocument('en', 'show me your services', 'service.list');
+    this.nlp.addDocument('en', 'services', 'service.list');
+    this.nlp.addDocument('en', 'what can you fix', 'service.list');
+    this.nlp.addDocument('en', 'list of services', 'service.list');
+    this.nlp.addDocument('en', 'what do you do', 'service.list');
+    
+    this.nlp.addAnswer('en', 'service.list', 'SERVICE_LIST');
+    
+    // Service information intent
+    this.nlp.addDocument('en', 'tell me about computer repair', 'service.info.computer-repair');
+    this.nlp.addDocument('en', 'computer repair details', 'service.info.computer-repair');
+    this.nlp.addDocument('en', 'fix my computer', 'service.info.computer-repair');
+    this.nlp.addDocument('en', 'laptop repairs', 'service.info.computer-repair');
+    
+    this.nlp.addDocument('en', 'tell me about network setup', 'service.info.network-setup');
+    this.nlp.addDocument('en', 'network troubleshooting', 'service.info.network-setup');
+    this.nlp.addDocument('en', 'wifi problems', 'service.info.network-setup');
+    this.nlp.addDocument('en', 'set up my network', 'service.info.network-setup');
+    
+    this.nlp.addDocument('en', 'tell me about data recovery', 'service.info.data-recovery');
+    this.nlp.addDocument('en', 'lost data', 'service.info.data-recovery');
+    this.nlp.addDocument('en', 'recover files', 'service.info.data-recovery');
+    this.nlp.addDocument('en', 'restore deleted files', 'service.info.data-recovery');
+    
+    this.nlp.addDocument('en', 'tell me about virus removal', 'service.info.virus-removal');
+    this.nlp.addDocument('en', 'malware problems', 'service.info.virus-removal');
+    this.nlp.addDocument('en', 'computer virus', 'service.info.virus-removal');
+    this.nlp.addDocument('en', 'remove viruses', 'service.info.virus-removal');
+    
+    this.nlp.addDocument('en', 'tell me about system upgrades', 'service.info.system-upgrade');
+    this.nlp.addDocument('en', 'upgrade my computer', 'service.info.system-upgrade');
+    this.nlp.addDocument('en', 'faster computer', 'service.info.system-upgrade');
+    this.nlp.addDocument('en', 'improve performance', 'service.info.system-upgrade');
+  }
+
+  addBookingIntents() {
+    // Booking intent
+    this.nlp.addDocument('en', 'book a service', 'booking.start');
+    this.nlp.addDocument('en', 'make an appointment', 'booking.start');
+    this.nlp.addDocument('en', 'schedule a repair', 'booking.start');
+    this.nlp.addDocument('en', 'book', 'booking.start');
+    this.nlp.addDocument('en', 'need to book', 'booking.start');
+    this.nlp.addDocument('en', 'want to schedule', 'booking.start');
+    
+    this.nlp.addAnswer('en', 'booking.start', 'BOOKING_REQUEST');
+  }
+  
+  addQuotationIntents() {
+    // Quotation intent
+    this.nlp.addDocument('en', 'get a quote', 'quotation.start');
+    this.nlp.addDocument('en', 'request quote', 'quotation.start');
+    this.nlp.addDocument('en', 'how much does it cost', 'quotation.start');
+    this.nlp.addDocument('en', 'pricing', 'quotation.start');
+    this.nlp.addDocument('en', 'price', 'quotation.start');
+    this.nlp.addDocument('en', 'quotation', 'quotation.start');
+    
+    this.nlp.addAnswer('en', 'quotation.start', 'QUOTATION_REQUEST');
+  }
+  
+  addPaymentIntents() {
+    // Payment intent
+    this.nlp.addDocument('en', 'make payment', 'payment.initiate');
+    this.nlp.addDocument('en', 'pay for service', 'payment.initiate');
+    this.nlp.addDocument('en', 'pay now', 'payment.initiate');
+    this.nlp.addDocument('en', 'i want to pay', 'payment.initiate');
+    this.nlp.addDocument('en', 'payment methods', 'payment.initiate');
+    this.nlp.addDocument('en', 'how to pay', 'payment.initiate');
+    this.nlp.addDocument('en', 'pay for booking', 'payment.initiate');
+    this.nlp.addDocument('en', 'pay for quotation', 'payment.initiate');
+    this.nlp.addDocument('en', 'payment options', 'payment.initiate');
+    
+    this.nlp.addAnswer('en', 'payment.initiate', 'PAYMENT_INITIATE');
+    
+    // Payment status intent
+    this.nlp.addDocument('en', 'payment status', 'payment.status');
+    this.nlp.addDocument('en', 'check my payment', 'payment.status');
+    this.nlp.addDocument('en', 'is my payment complete', 'payment.status');
+    this.nlp.addDocument('en', 'did my payment go through', 'payment.status');
+    this.nlp.addDocument('en', 'track payment', 'payment.status');
+    this.nlp.addDocument('en', 'check payment status', 'payment.status');
+    
+    this.nlp.addAnswer('en', 'payment.status', 'PAYMENT_STATUS_CHECK');
+  }
+
+  addHumanTransferIntents() {
+    // Human transfer intent
+    this.nlp.addDocument('en', 'speak to a human', 'transfer.human');
+    this.nlp.addDocument('en', 'speak to an agent', 'transfer.human');
+    this.nlp.addDocument('en', 'talk to a person', 'transfer.human');
+    this.nlp.addDocument('en', 'human assistance', 'transfer.human');
+    this.nlp.addDocument('en', 'real person', 'transfer.human');
+    this.nlp.addDocument('en', 'agent', 'transfer.human');
+    this.nlp.addDocument('en', 'human', 'transfer.human');
+    
+    this.nlp.addAnswer('en', 'transfer.human', 'TRANSFER_TO_HUMAN');
+  }
+
+  addFallbackIntents() {
+    // Fallback intent
+    this.nlp.addAnswer('en', 'None', "I'm not sure I understand. Could you rephrase that or ask about our services, bookings, or quotations?");
+    this.nlp.addAnswer('en', 'None', "Sorry, I didn't get that. You can ask about TechRehub services, book an appointment, or request a quote.");
+    this.nlp.addAnswer('en', 'None', "I'm still learning. You can try asking about our services or type 'speak to a human' to connect with our team.");
+  }
+
+  async processMessage(message, platform, sender) {
+    try {
+      // Check for special command formats
+      if (message.toLowerCase().includes('book:')) {
+        return {
+          intent: 'booking.confirm',
+          details: message.substring(message.indexOf('Book:') + 5).trim()
+        };
+      }
+      
+      if (message.toLowerCase().includes('quote:')) {
+        return {
+          intent: 'quotation.confirm',
+          details: message.substring(message.indexOf('Quote:') + 6).trim()
+        };
+      }
+      
+      // Use NLP for regular messages
+      const result = await this.nlp.process('en', message);
+      logger.info(`NLP result: Intent - ${result.intent}, Score - ${result.score}`);
+      
+      // Check confidence threshold
+      if (result.score < 0.6 && !result.intent.startsWith('service.info')) {
+        return {
+          intent: 'fallback',
+          answer: result.answer
+        };
+      }
+      
+      // Handle service info special case
+      if (result.intent.startsWith('service.info.')) {
+        const serviceId = result.intent.split('.')[2];
+        const service = config.techrehubServices.find(s => s.id === serviceId);
+        
+        if (service) {
+          return {
+            intent: 'service.info',
+            service: service
+          };
+        }
+      }
+      
+      // Handle special tokens in answers
+      if (result.answer === 'SERVICE_LIST') {
+        return {
+          intent: 'service.list'
+        };
+      } else if (result.answer === 'BOOKING_REQUEST') {
+        return {
+          intent: 'booking.start'
+        };
+      } else if (result.answer === 'QUOTATION_REQUEST') {
+        return {
+          intent: 'quotation.start'
+        };
+      } else if (result.answer === 'TRANSFER_TO_HUMAN') {
+        return {
+          intent: 'transfer.human'
+        };
+      } else if (result.answer === 'PAYMENT_INITIATE') {
+        return {
+          intent: 'payment.initiate'
+        };
+      } else if (result.answer === 'PAYMENT_STATUS_CHECK') {
+        return {
+          intent: 'payment.status'
+        };
+      }
+      
+      return {
+        intent: result.intent,
+        answer: result.answer
+      };
+    } catch (error) {
+      logger.error(`Error processing message: ${error.message}`);
+      return {
+        intent: 'error',
+        answer: "I'm sorry, I encountered an error. Please try again later."
+      };
+    }
+  }
+
+  getServiceInfo(serviceId) {
+    return config.techrehubServices.find(s => s.id === serviceId);
+  }
+}
+
+module.exports = new ChatbotService();
